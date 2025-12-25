@@ -110,8 +110,10 @@ class BusErrorUnit[T <: BusErrors](t: => T, params: BusErrorUnitParams)(implicit
       value := new_value
     }
 
+    val interruptReg = RegNext((accrued.asUInt & local_interrupt.asUInt).orR, false.B)
+
     val (int_out, _) = intNode.out(0)
-    io.interrupt := (accrued.asUInt & local_interrupt.asUInt).orR
+    io.interrupt := (accrued.asUInt & local_interrupt.asUInt).orR && !interruptReg
     int_out(0) := (accrued.asUInt & global_interrupt.asUInt).orR
 
     def reg(r: UInt, gn: String, d: RegFieldDesc) = RegFieldGroup(gn, None, RegField.bytes(r, (r.getWidth + 7)/8, Some(d)))
